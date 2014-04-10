@@ -15,7 +15,7 @@
 -- Partly based on code from WASHMail.
 --
 -----------------------------------------------------------------------------
-module Network.CGIMultipart
+module Network.Multipart
     (
      -- * Multi-part messages
      MultiPart(..), BodyPart(..)
@@ -36,7 +36,7 @@ import Data.List (intersperse)
 import Data.Maybe
 import System.IO (Handle)
 
-import Network.CGIMultipart.Header
+import Network.Multipart.Header
 
 import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.ByteString.Lazy.Char8 (ByteString)

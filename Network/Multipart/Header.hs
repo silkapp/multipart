@@ -15,7 +15,7 @@
 -- Partly based on code from WASHMail.
 --
 -----------------------------------------------------------------------------
-module Network.CGIMultipart.Header (
+module Network.Multipart.Header (
                               -- * Headers
                               Headers,
                               HeaderName(..),

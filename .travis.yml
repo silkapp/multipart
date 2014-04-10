@@ -6,7 +6,6 @@ script:
   - "cabal install --jobs=1"
 notifications:
   email:
-    recipients:
-      - adam@silk.co
+    recipients: travis@silk.co
     on_success: change
     on_failure: change
