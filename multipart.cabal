@@ -1,5 +1,7 @@
 name:                multipart
-version:             0.1
+version:             0.1.0.1
+synopsis:            A partial fork of the cgi package exposing the multipart module
+description:         A partial fork of the cgi package exposing the multipart module
 copyright:           Bjorn Bringert, Andy Gill, Anders Kaseorg, Ian Lynagh, Erik Meijer, Sven Panne, Jeremy Shaw
 category:            Network
 maintainer:          code@silk.co
@@ -7,7 +9,6 @@ author:              Silk B.V.
 homepage:            http://www.github.com/silkapp/multipart
 license:             BSD3
 license-file:        LICENSE
-synopsis:            A partial fork of the cgi package exposing the multipart module
 build-type:          Simple
 cabal-version:       >=1.10
 
