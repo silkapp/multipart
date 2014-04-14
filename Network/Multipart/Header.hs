@@ -46,15 +46,26 @@ module Network.Multipart.Header (
 import Control.Monad
 import Data.Char
 import Data.List
-
-import Network.CGI.Protocol
-import Network.CGI
+import Data.Monoid
 
 import Text.ParserCombinators.Parsec
 
 --
 -- * Headers
 --
+
+-- | HTTP headers.
+type Headers = [(HeaderName, String)]
+
+-- | A string with case insensitive equality and comparisons.
+newtype HeaderName = HeaderName String deriving (Show)
+
+instance Eq HeaderName where
+    HeaderName x == HeaderName y = map toLower x == map toLower y
+
+instance Ord HeaderName where
+    HeaderName x `compare` HeaderName y = map toLower x `compare` map toLower y
+
 
 class HeaderValue a where
     parseHeaderValue :: Parser a
@@ -120,6 +131,44 @@ p_parameter = try $
      p_value <- litStr <|> p_token
      return (map toLower p_name, p_value)
 
+--
+-- * Content type
+--
+
+-- | A MIME media type value.
+--   The 'Show' instance is derived automatically.
+--   Use 'showContentType' to obtain the standard
+--   string representation.
+--   See <http://www.ietf.org/rfc/rfc2046.txt> for more
+--   information about MIME media types.
+data ContentType =
+	ContentType {
+                     -- | The top-level media type, the general type
+                     --   of the data. Common examples are
+                     --   \"text\", \"image\", \"audio\", \"video\",
+                     --   \"multipart\", and \"application\".
+                     ctType :: String,
+                     -- | The media subtype, the specific data format.
+                     --   Examples include \"plain\", \"html\",
+                     --   \"jpeg\", \"form-data\", etc.
+                     ctSubtype :: String,
+                     -- | Media type parameters. On common example is
+                     --   the charset parameter for the \"text\"
+                     --   top-level type, e.g. @(\"charset\",\"ISO-8859-1\")@.
+                     ctParameters :: [(String, String)]
+                    }
+    deriving (Show, Read)
+
+instance Eq ContentType where
+    x == y = ctType x `caseInsensitiveEq` ctType y
+             && ctSubtype x `caseInsensitiveEq` ctSubtype y
+             && ctParameters x == ctParameters y
+
+instance Ord ContentType where
+    x `compare` y = mconcat [ctType x `caseInsensitiveCompare` ctType y,
+                             ctSubtype x `caseInsensitiveCompare` ctSubtype y,
+                             ctParameters x `compare` ctParameters y]
+
 instance HeaderValue ContentType where
     parseHeaderValue =
         do _ <- many ws1
@@ -130,6 +179,15 @@ instance HeaderValue ContentType where
            return $ ContentType (map toLower c_type) (map toLower c_subtype) c_parameters
     prettyHeaderValue (ContentType x y ps) = x ++ "/" ++ y ++ showParameters ps
 
+
+-- | Parse the standard representation of a content-type.
+--   If the input cannot be parsed, this function calls
+--   'fail' with a (hopefully) informative error message.
+parseContentType :: Monad m => String -> m ContentType
+parseContentType = parseM parseHeaderValue "Content-type"
+
+showContentType :: ContentType -> String
+showContentType = prettyHeaderValue
 
 getContentType :: Monad m => Headers -> m ContentType
 getContentType = getHeaderValue "content-type"

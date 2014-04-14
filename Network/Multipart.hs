@@ -22,6 +22,7 @@ module Network.Multipart
     , parseMultipartBody, hGetMultipartBody
     , showMultipartBody
      -- * Headers
+    , Headers , HeaderName(..)
     , ContentType(..), ContentTransferEncoding(..)
     , ContentDisposition(..)
     , parseContentType
