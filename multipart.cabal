@@ -12,6 +12,10 @@ license-file:        LICENSE
 build-type:          Simple
 cabal-version:       >=1.10
 
+extra-source-files:
+  LICENSE
+  README.md
+
 source-repository head
   type:              git
   location:          https://github.com/silkapp/multipart.git
