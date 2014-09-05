@@ -23,8 +23,8 @@ source-repository head
 library
   default-language:  Haskell2010
   ghc-options:       -Wall
-  exposed-modules:   Network.Multipart
-  other-modules:     Network.Multipart.Header
+  exposed-modules:   Network.Multipart,
+                     Network.Multipart.Header
   build-depends:
       base >= 3 && < 5
     , bytestring
