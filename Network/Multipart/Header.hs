@@ -46,7 +46,7 @@ module Network.Multipart.Header (
 import Control.Monad
 import Data.Char
 import Data.List
-import Data.Monoid
+import qualified Data.Monoid as M
 
 import Text.ParserCombinators.Parsec
 
@@ -142,7 +142,7 @@ p_parameter = try $
 --   See <http://www.ietf.org/rfc/rfc2046.txt> for more
 --   information about MIME media types.
 data ContentType =
-	ContentType {
+    ContentType {
                      -- | The top-level media type, the general type
                      --   of the data. Common examples are
                      --   \"text\", \"image\", \"audio\", \"video\",
@@ -165,9 +165,9 @@ instance Eq ContentType where
              && ctParameters x == ctParameters y
 
 instance Ord ContentType where
-    x `compare` y = mconcat [ctType x `caseInsensitiveCompare` ctType y,
-                             ctSubtype x `caseInsensitiveCompare` ctSubtype y,
-                             ctParameters x `compare` ctParameters y]
+    x `compare` y = M.mconcat [ctType x `caseInsensitiveCompare` ctType y,
+                               ctSubtype x `caseInsensitiveCompare` ctSubtype y,
+                               ctParameters x `compare` ctParameters y]
 
 instance HeaderValue ContentType where
     parseHeaderValue =
@@ -197,7 +197,7 @@ getContentType = getHeaderValue "content-type"
 --
 
 data ContentTransferEncoding =
-	ContentTransferEncoding String
+    ContentTransferEncoding String
     deriving (Show, Read, Eq, Ord)
 
 instance HeaderValue ContentTransferEncoding where
@@ -215,7 +215,7 @@ getContentTransferEncoding = getHeaderValue "content-transfer-encoding"
 --
 
 data ContentDisposition =
-	ContentDisposition String [(String, String)]
+    ContentDisposition String [(String, String)]
     deriving (Show, Read, Eq, Ord)
 
 instance HeaderValue ContentDisposition where
@@ -271,9 +271,9 @@ lineString = many (noneOf "\n\r")
 
 literalString :: Parser String
 literalString = do _ <- char '\"'
-		   str <- many (noneOf "\"\\" <|> quoted_pair)
-		   _ <- char '\"'
-		   return str
+                   str <- many (noneOf "\"\\" <|> quoted_pair)
+                   _ <- char '\"'
+                   return str
 
 -- No web browsers seem to implement RFC 2046 correctly,
 -- since they do not escape double quotes and backslashes
@@ -306,4 +306,4 @@ p_text = oneOf text_chars
 
 quoted_pair :: Parser Char
 quoted_pair = do _ <- char '\\'
-		 p_text
+                 p_text
