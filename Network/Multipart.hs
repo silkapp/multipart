@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- #hide
 
 -----------------------------------------------------------------------------
@@ -41,6 +42,7 @@ import Network.Multipart.Header
 
 import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.ByteString.Lazy.Char8 (ByteString)
+import Data.ByteString.Lazy.Search (breakOn)
 
 --
 -- * Multi-part stuff.
@@ -118,16 +120,17 @@ splitAtBoundary :: ByteString -- ^ The boundary, without the initial dashes
                    --   before and the CRLF (if any) after the boundary line
                    --   are not included in any of the strings returned.
                    --   Returns 'Nothing' if there is no boundary.
-splitAtBoundary b s = spl 0
-  where
-  spl i = case findCRLF (BS.drop i s) of
-              Nothing -> Nothing
-              Just (j,l) | isBoundary b s2 -> Just (s1,d,s3)
-                         | otherwise -> spl (i+j+l)
-                  where
-                  s1 = BS.take (i+j) s
-                  s2 = BS.drop (i+j+l) s
-                  (d,s3) = splitAtCRLF s2
+splitAtBoundary b s =
+  let bcrlf = BS.append "\r\n--" b
+      (before, t) = breakOn (BS.toStrict bcrlf) s
+  in case BS.stripPrefix bcrlf t of
+       Nothing -> Nothing
+       Just t' ->
+         let after = case BS.stripPrefix "\r\n" t' of
+               Nothing -> t'
+               Just t'' -> t''
+         in  Just (before, bcrlf, after)
+
 
 -- | Check whether a string starts with two dashes followed by
 --   the given boundary string.

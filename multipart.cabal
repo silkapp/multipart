@@ -31,3 +31,4 @@ library
       base >= 3 && < 5
     , bytestring
     , parsec >= 2.0
+    , stringsearch
