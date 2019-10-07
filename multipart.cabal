@@ -1,7 +1,7 @@
 name:                multipart
 version:             0.2.0
-synopsis:            HTTP multipart split out of the cgi package
-description:         HTTP multipart split out of the cgi package
+synopsis:            Parsers for the HTTP multipart format
+description:         Parsers and data types for the HTTP multipart format from RFC2046.
 copyright:           Bjorn Bringert, Andy Gill, Anders Kaseorg, Ian Lynagh, Erik Meijer, Sven Panne, Jeremy Shaw
 category:            Network
 maintainer:          code@silk.co
