@@ -44,6 +44,7 @@ module Network.Multipart.Header (
                           ) where
 
 import Control.Monad
+import Control.Monad.Fail as MFail
 import Data.Char
 import Data.List
 import qualified Data.Monoid as M
@@ -91,7 +92,7 @@ extraFieldLine =
        _ <- crLf
        return (sp:line)
 
-getHeaderValue :: (Monad m, HeaderValue a) => String -> Headers -> m a
+getHeaderValue :: (MonadFail m, HeaderValue a) => String -> Headers -> m a
 getHeaderValue h hs = lookupM (HeaderName h) hs >>= parseM parseHeaderValue h
 
 --
@@ -183,13 +184,13 @@ instance HeaderValue ContentType where
 -- | Parse the standard representation of a content-type.
 --   If the input cannot be parsed, this function calls
 --   'fail' with a (hopefully) informative error message.
-parseContentType :: Monad m => String -> m ContentType
+parseContentType :: MonadFail m => String -> m ContentType
 parseContentType = parseM parseHeaderValue "Content-type"
 
 showContentType :: ContentType -> String
 showContentType = prettyHeaderValue
 
-getContentType :: Monad m => Headers -> m ContentType
+getContentType :: MonadFail m => Headers -> m ContentType
 getContentType = getHeaderValue "content-type"
 
 --
@@ -207,7 +208,7 @@ instance HeaderValue ContentTransferEncoding where
            return $ ContentTransferEncoding (map toLower c_cte)
     prettyHeaderValue (ContentTransferEncoding s) = s
 
-getContentTransferEncoding :: Monad m => Headers -> m ContentTransferEncoding
+getContentTransferEncoding :: MonadFail m => Headers -> m ContentTransferEncoding
 getContentTransferEncoding = getHeaderValue "content-transfer-encoding"
 
 --
@@ -228,21 +229,21 @@ instance HeaderValue ContentDisposition where
         t ++ concat ["; " ++ n ++ "=" ++ quote v | (n,v) <- hs]
             where quote x = "\"" ++ x ++ "\"" -- NOTE: silly, but de-facto standard
 
-getContentDisposition :: Monad m => Headers -> m ContentDisposition
+getContentDisposition :: MonadFail m => Headers -> m ContentDisposition
 getContentDisposition = getHeaderValue "content-disposition"
 
 --
 -- * Utilities
 --
 
-parseM :: Monad m => Parser a -> SourceName -> String -> m a
+parseM :: MonadFail m => Parser a -> SourceName -> String -> m a
 parseM p n inp =
   case parse p n inp of
-    Left e -> fail (show e)
+    Left e -> MFail.fail (show e)
     Right x -> return x
 
-lookupM :: (Monad m, Eq a, Show a) => a -> [(a,b)] -> m b
-lookupM n = maybe (fail ("No such field: " ++ show n)) return . lookup n
+lookupM :: (MonadFail m, Eq a, Show a) => a -> [(a,b)] -> m b
+lookupM n = maybe (MFail.fail ("No such field: " ++ show n)) return . lookup n
 
 caseInsensitiveEq :: String -> String -> Bool
 caseInsensitiveEq x y = map toLower x == map toLower y
