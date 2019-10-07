@@ -1,5 +1,9 @@
 # Changelog
 
+### x.y.z
+
+* Building this package with ghc versions before 8.x is no longer supported.
+
 ### 0.2.0
 
 * Monad.Fail no longer exists in `base-4.13.0.0` and beyond; the function now
