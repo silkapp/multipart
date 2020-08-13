@@ -116,15 +116,22 @@ splitAtBoundary :: ByteString -- ^ The boundary, without the initial dashes
                    --   are not included in any of the strings returned.
                    --   Returns 'Nothing' if there is no boundary.
 splitAtBoundary b s =
-  let bcrlf = BS.append "\r\n--" b
-      (before, t) = breakOn (BS.toStrict bcrlf) s
-  in case BS.stripPrefix bcrlf t of
+  let b' = BS.append "--" b
+      bcrlf = BS.append "\r\n" b'
+
+      -- check if we are at the beginning of a boundary, if so, we
+      -- won’t have a \r\n
+      prefix = if BS.isPrefixOf b' s then b'
+               else bcrlf
+
+      (before, t) = breakOn (BS.toStrict prefix) s
+  in case BS.stripPrefix prefix t of
        Nothing -> Nothing
        Just t' ->
          let after = case BS.stripPrefix "\r\n" t' of
                Nothing -> t'
                Just t'' -> t''
-         in  Just (before, bcrlf, after)
+         in  Just (before, prefix, after)
 
 -- | Check whether a string for which 'isBoundary' returns true
 --   has two dashes after the boudary string.
