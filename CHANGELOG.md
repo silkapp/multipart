@@ -1,7 +1,9 @@
 # Changelog
 
-### x.y.z
+### 0.2.1
 
+* Fix parsing of boundaries if newlines are missing. Thanks to Matthew
+  Bauer.
 * Building this package with ghc versions before 8.x is no longer supported.
 
 ### 0.2.0
